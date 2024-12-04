@@ -1,0 +1,28 @@
+import pandas as pd
+import numpy as np
+
+from sklearn import svm
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+
+# Read train data
+df = pd.read_csv('./iris.csv')
+X_train = df[df['Species'] == "Iris-virginica"]
+X_train = X_train[['PetalLengthCm', 'PetalWidthCm']].values[:40, :]
+# rescale the data
+X_train = MinMaxScaler().fit_transform(X_train)
+#X_train = np.delete(X_train, (np.where(X_train == 1)), axis=0)
+
+NUs = [0.1, 0.05, 0.01, 0.005, 0.001, 0.0005, 0.0001, 0.00005, 0.00001]
+GAMMAs = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.05, 0.01, 0.005, 0.001]
+for nu in NUs:
+	for gamma in GAMMAs:
+		clf = svm.OneClassSVM(nu=nu, kernel="rbf", gamma=gamma)
+		clf.fit(X_train)
+		y_pred_train = clf.predict(X_train)
+		n_error_train = y_pred_train[y_pred_train == -1].size
+		if n_error_train == 0 or n_error_train == 1:
+			print(clf.n_iter_)
+			print(nu, gamma, n_error_train)
+			error_index = np.where(y_pred_train == -1)[0]
+			error_train = X_train[error_index]
+			print(error_index, error_train)

@@ -1,0 +1,85 @@
+Simulation Plan:
+Initial Golden Run Commands:
+scons build/X86/gem5.fast -j{numberOfThreads} #How Many Threads? Use 16
+python gem5-sim-gen-PARSEC_v3.py --numSimulations 1 --numCores 16 --minThreads 16 --maxThreads 16 --minProcesses 1 --maxProcesses 1 --size simsmall
+
+./build/X86/gem5.fast -d stats_blackscholes_16 ./PoliMi_RIT/run_simulation_v4.py --benchmark blackscholes --thread 16 --core 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 --size simsmall --period 1000 --image ./PoliMi_RIT/diskImage_Ubuntu18.04+PARSEC+taskset/disk-image/parsec/parsec-image/parsec
+./build/X86/gem5.fast -d stats_bodytrack_16 ./PoliMi_RIT/run_simulation_v4.py --benchmark bodytrack --thread 16 --core 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 --size simsmall --period 1000 --image ./PoliMi_RIT/diskImage_Ubuntu18.04+PARSEC+taskset/disk-image/parsec/parsec-image/parsec
+
+
+
+
+switch from KVM Processor to 03 processor
+1st iteration - mix and match the cores
+set of parameters that configure the core in gem5, may be able to alter cache/slow clock artificially (Zuzak)
+
+16 threads all cores
+
+ssh gem5vm@gem5-vm.rc.rit.edu -C
+
+ "blackscholes",
+    "bodytrack",
+    "canneal",
+    "dedup",
+    "facesim",
+    "ferret",
+    "fluidanimate",
+    "freqmine",
+    "raytrace",
+    "streamcluster",
+    "swaptions",
+    "vips",
+    "x264",
+	
+python gem5-stats-to-csv-parser.py --benchmark blackscholes --thread 16 --core 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 --inputFilePath /gem5/stats_blackscholes_16/stats.txt --outputFilePath /gem5/stats_blackscholes_16/stats.csv
+
+ gem5vm@gem5-vm.rc.rit.edu:~\gem5\bodytrack_canneal\stats_bodytrack-canneal_5-2_0,3,8,9,13-4,15\stats.csv  C:\Users\alexb\OneDrive\Documents
+ 
+ Key core options in gem5:
+CPU type:
+Selecting the specific CPU model to use, such as "O3", "Atomic", "Timing", or "KVM", each with different architectural characteristics. 
+Cache sizes:
+Specifying the sizes of the L1, L2, and L3 caches (data and instruction) for the CPU. 
+Cache associativity:
+Setting the level of associativity for the caches (e.g., direct-mapped, 2-way, 8-way). 
+Pipeline stages:
+Configuring the number of pipeline stages in the CPU design, impacting instruction fetch and execution parallelism. 
+Instruction set architecture (ISA):
+Choosing the instruction set the CPU will emulate, like x86, ARM, or RISC-V. 
+Branch prediction:
+Adjusting the branch prediction mechanism used by the CPU, impacting performance for branching instructions. 
+Clock speed:
+Setting the clock frequency of the CPU core. 
+How to access core options in gem5:
+
+Dr. Zuzak mentioned somehting about policies are really easy to change
+Branch prediction, is there prediction or no
+
+START WITH CACHE SIZES , maybe cache policies
+branch prediciton
+change pipeline stages
+then clock speed (low priority)
+
+
+
+cache_hierarchy = MESITwoLevelCacheHierarchyGarnetMesh(
+    l1d_size="32kB",
+    l1d_assoc=8,
+    l1i_size="32kB",
+    l1i_assoc=8,
+    l2_size="256kB",
+    l2_assoc=16,
+    num_l2_banks=16,
+)
+
+
+cache_hierarchy = MESITwoLevelCacheHierarchyGarnetMesh(
+    l1d_size="32kB",
+    l1d_assoc=8,
+    l1i_size="32kB",
+    l1i_assoc=8,
+    l2_size="256kB",
+    l2_assoc=16,
+    num_l2_banks=16,
+)
+

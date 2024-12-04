@@ -1,0 +1,77 @@
+# import necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.svm import OneClassSVM
+
+# random seed
+np.random.seed(0)
+
+# parameters
+n_training_samples = 16
+nums_features = [1, 4, 8, 16]
+nums_samples = [1, 2, 3, 4, 5]
+percentages = [10, 20, 30, 40, 50]
+ratios = [0.8, 0.9]
+ratios_text = ['8-2', '9-1']
+#NUs = [0.1, 0.2, 0.99]
+NUs = [0.05, 1./16., 0.1, 0.2, 0.5, 0.7, 0.9, 0.99]
+GAMMAs = [0.05, 1./16., 0.1, 0.2, 0.5, 0.7, 0.9, 0.99]
+
+# iterate parameters
+for percentage in percentages:
+	for n_samples in nums_samples:
+			for ratio, ratio_text in zip(ratios, ratios_text):
+				output =[] # excel output
+				for n_features in nums_features:
+					print(f'No. of features: {n_features}, No. of generated samples: {n_samples}, Split ratio: {ratio_text}, Gaussian percentage: {percentage}')
+					# read upsampled data
+					df = pd.read_csv(f'data/{n_features}features_{n_samples}samples_{percentage}percent_gaussian_execnorm.csv')
+
+					# classes and their indices
+					class_column = 'Applications (Label Classes)'
+					labels = np.unique(df[class_column].to_numpy())
+
+					# class to numeric value
+					df[class_column] = pd.factorize(df[class_column])[0]
+					label_indices = np.unique(df[class_column].to_numpy())
+
+					tmp_out = [] # excel output
+					tmp_out.append([f'Features: {n_features}', '', '', '', '', '', '']) # excel output (space between features)
+					for index in label_indices:
+						print('Target class:', labels[index])
+						X_train = df[df[class_column] == index].to_numpy()[:, :n_features] # extract target class rows excluding class label column
+						np.random.shuffle(X_train)
+
+						# split the entire data into 80-20% or 90-10%
+						split_index = int(X_train.shape[0] * ratio)
+						# training data
+						X_train_target = X_train[:split_index, :]
+						# testing data (benign)
+						X_test_target = X_train[split_index:, :]
+						# testing data (anomalous)
+						X_test_others = df[df[class_column] != index].to_numpy()[:, :n_features] # extract other classes rows excluding class label column
+
+						tmp_out.append([f'Target Class: {labels[index]}', 'TP', 'FP', 'FN', 'TN', 'ACC (%)', '']) # excel output
+						for nu in NUs:
+							for gamma in GAMMAs:
+								#print('Nu:', nu, ', Gamma:', gamma)
+								clf = OneClassSVM(kernel='rbf', nu=nu, gamma=gamma)
+								clf.fit(X_train_target)
+
+								y_pred_train = clf.predict(X_test_target)
+								FP = y_pred_train[y_pred_train == -1].size # GT: 1
+								TN = y_pred_train[y_pred_train == 1].size # GT: 1
+
+								y_pred_test = clf.predict(X_test_others)
+								TP = y_pred_test[y_pred_test == -1].size # GT: -1
+								FN = y_pred_test[y_pred_test == 1].size # GT: -1
+
+								tmp_out.append([f'Nu: {nu}, Gamma: {gamma}', TP, FP, FN, TN, (TP+TN)/(TP+FP+FN+TN)*100, '']) # excel output
+						tmp_out.append(['', '', '', '', '', '', '']) # excel output (space between target classes)
+
+					output.append(tmp_out)
+
+				output = np.concatenate(output, axis=1)
+				out = pd.DataFrame(output)
+				out.to_csv(f'results/{ratio_text}split/{n_samples}samples_{percentage}percent_gaussian_execnorm.csv', header=False, index=False)
