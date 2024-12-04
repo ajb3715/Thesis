@@ -10,7 +10,7 @@ np.random.seed(0)
 # Parameters
 # n_training_samples = 16  # Number of training samples (unused in this code)
 # nums_features = [1, 4, 8, 16]  # List of feature counts to iterate over
-# nums_samples = [1, 2, 3, 4, 5]  # List of sample sizes to iterate over
+nums_samples = 40  # List of sample sizes to iterate over
 percentages = [10, 20, 30, 40, 50]  # Different percentages of Gaussian noise
 ratios = [0.9] # ratios = [0.8, 0.9]  # Data split ratios for train/test (80-20% or 90-10%)
 ratios_text = ['9-1']# ratios_text = ['8-2', '9-1']  # Text labels for the split ratios
@@ -26,7 +26,7 @@ for percentage in percentages:
         # print(f'No. of features: {n_features}, No. of generated samples: {n_samples}, Split ratio: {ratio_text}, Gaussian percentage: {percentage}')
         
         # Read data from CSV based on current configuration (generated beforehand)
-        df = pd.read_csv("HalfCache\stats_canneal_cachehalf_16/Data-traffic-distribution-Comparison.csv")
+        df = pd.read_csv("HalfCache\stats_blackscholes_cachehalf_16/Data-traffic-distribution-Comparison.csv")
         
         # Column indicating the class labels
         class_column = 'Applications (Label Classes)'
@@ -39,7 +39,7 @@ for percentage in percentages:
         label_indices = np.unique(df[class_column].to_numpy())  # Get unique numeric labels
         
         tmp_out = []  # Temporary output for current configuration
-        tmp_out.append(['Features: 16', '', '', '', '', '', ''])  # Formatting for CSV output
+        tmp_out.append(['Features: 16', '', '', '', '', '', '', '', ''])  # Formatting for CSV output
 
         # Iterate through each class (target class)
         for index in label_indices:
@@ -62,7 +62,7 @@ for percentage in percentages:
             X_test_others = df[df[class_column] != index].to_numpy()[:, :16]
 
             # Add target class header to the temporary output
-            tmp_out.append([f'Target Class: {labels[index]}', 'TP', 'FP', 'FN', 'TN', 'ACC (%)', ''])  # TP, FP, etc. are placeholders for output
+            tmp_out.append([f'Target Class: {labels[index]}', 'TP', 'FP', 'FN', 'TN', 'ACC (%)', 'Noise Percantages', 'Upsampling', ''])  # TP, FP, etc. are placeholders for output
 
             # Iterate over `nu` and `gamma` hyperparameters of OneClassSVM
             for nu in NUs:
@@ -83,13 +83,13 @@ for percentage in percentages:
 
                     # Calculate accuracy and store results in the temporary output
                     accuracy = (TP + TN) / (TP + FP + FN + TN) * 100
-                    tmp_out.append([f'Nu: {nu}, Gamma: {gamma}', TP, FP, FN, TN, accuracy, ''])  # Append to CSV output
+                    tmp_out.append([f'Nu: {nu}, Gamma: {gamma}', TP, FP, FN, TN, accuracy, int(percentage), nums_samples, ''])  # Append to CSV output
 
-            tmp_out.append(['', '', '', '', '', '', ''])  # Add spacing in output between target classes
+            tmp_out.append(['', '', '', '', '', '', '', '', ''])  # Add spacing in output between target classes
 
         output.append(tmp_out)
 
         # Combine all output rows for this configuration and save to CSV
         output = np.concatenate(output, axis=1)  # Merge results for different features
         out = pd.DataFrame(output)  # Convert to DataFrame for easier CSV export
-        out.to_csv("HalfCache/stats_canneal_cachehalf_16/Data-traffic-distribution-Results.csv", header=False, index=False)  # Save the result
+        out.to_csv("HalfCache/stats_blackscholes_cachehalf_16/Data-traffic-distribution-Results.csv", header=False, index=False, mode='a')  # Save the result
