@@ -17,7 +17,7 @@ ratios_text = ['9-1']# ratios_text = ['8-2', '9-1']  # Text labels for the split
 # List of different `nu` (a hyperparameter of OneClassSVM, controlling support vectors)
 NUs = [0.00005, 0.00006, 0.00007, 0.00008, 0.00009, 0.0001, 0.0002, 0.0003, 0.0004, 0.005, 0.05, 1./16., 0.1, 0.2, 0.5, 0.7, 0.9, 0.99]
 # List of different `gamma` values (another hyperparameter controlling kernel width in SVM)
-GAMMAs = [0.00005, 0.00006, 0.00007, 0.00008, 0.00009, 0.0001, 0.0002, 0.0003, 0.0004, 0.005, 0.05, 1./16., 0.1, 0.2, 0.5, 0.7, 0.9, 0.99]
+GAMMAs = [0.00001, 0.00002, 0.00003, 0.00004, 0.00005, 0.00006, 0.00007, 0.00008, 0.00009, 0.0001, 0.0002, 0.0003, 0.0004, 0.005, 0.05, 1./16., 0.1, 0.2, 0.5, 0.7, 0.9, 0.99]
 
 # Iterate through different configurations
 for percentage in percentages:
