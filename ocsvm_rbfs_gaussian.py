@@ -11,7 +11,7 @@ np.random.seed(0)
 # n_training_samples = 16  # Number of training samples (unused in this code)
 # nums_features = [1, 4, 8, 16]  # List of feature counts to iterate over
 nums_samples = 40  # List of sample sizes to iterate over
-percentages = [10, 20, 30, 40, 50]  # Different percentages of Gaussian noise
+percentages = [0, 10, 20, 30, 40, 50]  # Different percentages of Gaussian noise
 ratios = [0.9] # ratios = [0.8, 0.9]  # Data split ratios for train/test (80-20% or 90-10%)
 ratios_text = ['9-1']# ratios_text = ['8-2', '9-1']  # Text labels for the split ratios
 # List of different `nu` (a hyperparameter of OneClassSVM, controlling support vectors)
@@ -54,7 +54,18 @@ for percentage in percentages:
             
             # Training data (target class)
             X_train_target = X_train[:split_index, :]
-            
+
+            # **Augment Training Data with Noise**
+            if(percentage != 0):
+                augmented_data = []
+                for sample in X_train_target:
+                    for _ in range(nums_samples):  # Generate `nums_samples` additional data points
+                        noise = np.random.normal(0, (percentage / 100) * np.abs(sample), size=sample.shape)
+                        augmented_data.append(sample + noise)
+                
+                # Convert augmented data to NumPy array and append to the original training data
+                X_train_target_augmented = np.vstack((X_train_target, np.array(augmented_data)))
+                    
             # Test data from the target class (benign cases)
             X_test_target = X_train[split_index:, :]
             
@@ -69,6 +80,7 @@ for percentage in percentages:
                 for gamma in GAMMAs:
                     # Initialize OneClassSVM with current parameters
                     clf = OneClassSVM(kernel='rbf', nu=nu, gamma=gamma)
+                    
                     clf.fit(X_train_target)  # Train the model on the target class
 
                     # Predict on test data from the same class (expected to be positive)
