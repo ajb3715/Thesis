@@ -15,6 +15,7 @@ set of parameters that configure the core in gem5, may be able to alter cache/sl
 
 16 threads all cores
 
+ssh gem5vm@gem5-vm.rc.rit.edu -C
 
  "blackscholes",
     "bodytrack",
@@ -72,15 +73,6 @@ cache_hierarchy = MESITwoLevelCacheHierarchyGarnetMesh(
 )
 
 
-cache_hierarchy = MESITwoLevelCacheHierarchyGarnetMesh(
-    l1d_size="32kB",
-    l1d_assoc=8,
-    l1i_size="32kB",
-    l1i_assoc=8,
-    l2_size="256kB",
-    l2_assoc=16,
-    num_l2_banks=16,
-)
 
 
 SEE HOW TO RUN TWO APPLICATIONS AND GET THE THREADS TO PARRALLELIZED ACROSS ALL 16 CORES
