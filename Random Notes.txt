@@ -16,6 +16,7 @@ set of parameters that configure the core in gem5, may be able to alter cache/sl
 16 threads all cores
 
 ssh gem5vm@gem5-vm.rc.rit.edu -C
+ssh ajb3715@sporcsubmit.rc.rit.edu
 
  "blackscholes",
     "bodytrack",
@@ -76,3 +77,70 @@ cache_hierarchy = MESITwoLevelCacheHierarchyGarnetMesh(
 
 
 SEE HOW TO RUN TWO APPLICATIONS AND GET THE THREADS TO PARRALLELIZED ACROSS ALL 16 CORES
+
+
+
+
+# Structure of the generated CSV file:
+#   Lines 1-16: Control traffic distribution matrix
+#       Line 1: From router 0 to ...
+#           Column 1: ... router 0
+#           Column 2: ... router 1
+#           Column 3: ... router 2
+#           ...
+#           Column 16: ... router 15
+#       Line 2: From router 1 to the 16 routers
+#       Line 3: From router 2 to the 16 routers
+#       ...
+#       Line 16: From router 15 to the 16 routers
+#   Lines 17-32: Data traffic distribution matrix
+#       Line 17: From router 0 to ...
+#           Column 1: ... router 0
+#           Column 2: ... router 1
+#           Column 3: ... router 2
+#           ...
+#           Column 16: ... router 15
+#       Line 18: From router 1 to the 16 routers
+#       Line 19: From router 2 to the 16 routers
+#       ...
+#       Line 32: From router 15 to the 16 routers
+#   Lines 33-48: Router stats matrix
+#       Line 33: Router 0's ...
+#           Column 1: ... buffer_reads
+#           Column 2: ... buffer_writes
+#           Column 3: ... crossbar_activity
+#           Column 4: ... sw_input_arbiter_activity
+#           Column 5: ... sw_output_arbiter_activity
+#           Column 6: ... power_state.pwrStateResidencyTicks
+#       Line 34: Router 1's six stats values
+#       Line 35: Router 2's six stats values
+#       ...
+#       Line 48: Router 15's six stats values
+#   Lines 49-61: Network stats matrix
+#       Line 49: board.cache_hierarchy.ruby_system.network.average_flit_latency
+#       Line 50: board.cache_hierarchy.ruby_system.network.average_flit_network_latency
+#       Line 51: board.cache_hierarchy.ruby_system.network.average_flit_queueing_latency
+#       Line 52: board.cache_hierarchy.ruby_system.network.average_flit_vnet_latency
+#       Line 53: board.cache_hierarchy.ruby_system.network.average_flit_vqueue_latency
+#       Line 54: board.cache_hierarchy.ruby_system.network.average_hops
+#       Line 55: board.cache_hierarchy.ruby_system.network.average_packet_latency
+#       Line 56: board.cache_hierarchy.ruby_system.network.average_packet_network_latency
+#       Line 57: board.cache_hierarchy.ruby_system.network.average_packet_queueing_latency
+#       Line 58: board.cache_hierarchy.ruby_system.network.average_packet_vnet_latency
+#       Line 59: board.cache_hierarchy.ruby_system.network.average_packet_vqueue_latency
+#       Line 60: board.cache_hierarchy.ruby_system.network.avg_link_utilization
+#       Line 61: board.cache_hierarchy.ruby_system.network.avg_vc_load::total
+#   Lines 62-63: Workload specification
+#       Line 62: Running processes
+#           Column 1: Name of process #1
+#           Column 2: Name of process #2
+#           ...
+#       Line 63: Corresponding numbers of threads
+#           Column 1: Number of threads of process #1 (see Line 62)
+#           Column 2: Number of threads of process #2 (see Line 62)
+#           ...
+#       Line 64: Cores associated to process #1, process #2, ...	
+
+
+
+Need to modify path in cluster to desired version of Gem5 (something about load commands/files)
