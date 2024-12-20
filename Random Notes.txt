@@ -144,3 +144,15 @@ SEE HOW TO RUN TWO APPLICATIONS AND GET THE THREADS TO PARRALLELIZED ACROSS ALL 
 
 
 Need to modify path in cluster to desired version of Gem5 (something about load commands/files)
+
+PRODUCE TABLE 
+
+Converting measured samples into a pdf...
+
+nohup ./build/X86/gem5.fast -d stats_bodytrack_blackscholes_evendistro_noper_16 ./Poli
+Mi_RIT/run_simulation_v2.py --benchmark bodytrack-blackscholes --thread 16-16 --core 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,
+15-0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 --size simsmall --image ./PoliMi_RIT/diskImage_Ubuntu18.04+PARSEC+taskset/disk-
+image/parsec/parsec-image/parsec &
+
+https://www.cs.princeton.edu/techreports/2008/811.pdf
+
