@@ -1,7 +1,7 @@
 # Import necessary libraries
 import pandas as pd  # Data manipulation
 import numpy as np  # Numerical operations and random generation
-import matplotlib.pyplot as plt  # For plotting, though not used in this code
+# import matplotlib.pyplot as plt  # For plotting, though not used in this code
 from sklearn.svm import OneClassSVM  # One-Class Support Vector Machine (SVM) for anomaly detection
 
 # Random seed for reproducibility
@@ -26,7 +26,7 @@ for percentage in percentages:
         # print(f'No. of features: {n_features}, No. of generated samples: {n_samples}, Split ratio: {ratio_text}, Gaussian percentage: {percentage}')
         
         # Read data from CSV based on current configuration (generated beforehand)
-        df = pd.read_csv("stats_blackscholes_bodytrack_allcore_fullcache_16/Data-traffic-distribution-Comparison.csv")
+        df = pd.read_csv("HalfCache/stats_vips_cachehalf_16/Data-traffic-distribution.csv")
         
         # Column indicating the class labels
         class_column = 'Applications (Label Classes)'
@@ -104,4 +104,4 @@ for percentage in percentages:
         # Combine all output rows for this configuration and save to CSV
         output = np.concatenate(output, axis=1)  # Merge results for different features
         out = pd.DataFrame(output)  # Convert to DataFrame for easier CSV export
-        out.to_csv("stats_blackscholes_bodytrack_allcore_fullcache_16/Data-traffic-distribution-Results.csv", header=False, index=False, mode='a')  # Save the result
+        out.to_csv("HalfCache/stats_vips_cachehalf_16/Data-traffic-distribution-Results.csv", header=False, index=False, mode='a')  # Save the result
