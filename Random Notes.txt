@@ -160,3 +160,4 @@ delve deeper in gem5 code, or launch the events differently (handle workend func
 
 In cluster, run 16 parallel runs (same application (blackscholes) get all data dump, where each of the 16 parrallel runs will have only 1 thread/core, 2, all the way up to 16)
 
+opt pathway - gem5.opt
