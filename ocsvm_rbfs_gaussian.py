@@ -26,7 +26,7 @@ for percentage in percentages:
         # print(f'No. of features: {n_features}, No. of generated samples: {n_samples}, Split ratio: {ratio_text}, Gaussian percentage: {percentage}')
         
         # Read data from CSV based on current configuration (generated beforehand)
-        df = pd.read_csv("HalfCache/stats_vips_cachehalf_16/Data-traffic-distribution.csv")
+        df = pd.read_csv("MRUCache/stats_blackscholes_MRURP_16/Data-traffic-distribution-Comparison.csv")
         
         # Column indicating the class labels
         class_column = 'Applications (Label Classes)'
@@ -104,4 +104,4 @@ for percentage in percentages:
         # Combine all output rows for this configuration and save to CSV
         output = np.concatenate(output, axis=1)  # Merge results for different features
         out = pd.DataFrame(output)  # Convert to DataFrame for easier CSV export
-        out.to_csv("HalfCache/stats_vips_cachehalf_16/Data-traffic-distribution-Results.csv", header=False, index=False, mode='a')  # Save the result
+        out.to_csv("MRUCache/stats_blackscholes_MRURP_16/Data-traffic-distribution-Results.csv", header=False, index=False, mode='a')  # Save the result
