@@ -18,7 +18,7 @@ root.withdraw()
 directory = askdirectory(title="Select the directory containing CSV files")
 
 # Define the column names for the output file
-columns = [f"ToRouter{i}" for i in range(16)] + ["Applications (Label Classes)"]
+columns = [f"From router {i//16} to router {i%16}" for i in range(256)] + ["Applications (Label Classes)"]
 
 # Set the output file path in the selected directory
 output_file_path = os.path.join(directory, "Data-traffic-distribution.csv")
@@ -40,28 +40,28 @@ for filename in os.listdir(directory):
         cell_a62 = df.iat[61, 0] if len(df) > 60 else None  # Safely get A61 if it exists
         
         # Select rows 17-32 and only the first 16 columns
-        selected_rows = df.iloc[15:32, :16]  # Limit to the first 16 columns
+        selected_rows = df.iloc[16:32, :16]  # Limit to the first 16 columns
         selected_rows = selected_rows.astype(float)
-        print(selected_rows)
 
-        #Sum the rows
-        summed_rows = selected_rows.sum(axis=0)
- 
-        summed_row_df = pd.DataFrame([summed_rows])
+        #Flatten 256
+        # Flatten the matrix into a single row of 256 values
+        flattened_row = selected_rows.to_numpy().flatten()  # or .values.ravel()
+
+        flattened_df = pd.DataFrame([flattened_row])
 
         
         # Add the value of cell A61 to each row in the selected rows
         if '.' in cell_a61:
-            summed_row_df["Applications (Label Classes)"] = cell_a62
+            flattened_df["Applications (Label Classes)"] = cell_a62
         else:
-            summed_row_df["Applications (Label Classes)"] = cell_a61
+            flattened_df["Applications (Label Classes)"] = cell_a61
         
         # Set the correct column names for the selected rows
-        summed_row_df.columns = columns
+        flattened_df.columns = columns
         
         # Append the selected rows to the output CSV file
         # Write header only if it's the first file being processed
-        summed_row_df.to_csv(output_file_path, mode='a', index=False, header=not header_written)
+        flattened_df.to_csv(output_file_path, mode='a', index=False, header=not header_written)
         
         # Set header_written to True after the first write
         header_written = True
