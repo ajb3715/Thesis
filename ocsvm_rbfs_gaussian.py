@@ -26,7 +26,7 @@ for percentage in percentages:
         # print(f'No. of features: {n_features}, No. of generated samples: {n_samples}, Split ratio: {ratio_text}, Gaussian percentage: {percentage}')
         
         # Read data from CSV based on current configuration (generated beforehand)
-        df = pd.read_csv("HalfCache/stats_x264_cachehalf_16/Data-traffic-distribution-Comparison.csv")
+        df = pd.read_csv("MRUCache/stats_facesim_MRURP_16/Data-traffic-distribution-Comparison.csv")
         
         # Column indicating the class labels
         class_column = 'Applications (Label Classes)'
@@ -34,12 +34,14 @@ for percentage in percentages:
         # Get unique class labels in the dataset
         labels = np.unique(df[class_column].to_numpy())
         
-        # Convert class labels into numeric values (e.g., categorical to integer)
-        df[class_column] = pd.factorize(df[class_column])[0]
-        label_indices = np.unique(df[class_column].to_numpy())  # Get unique numeric labels
+       
         
         tmp_out = []  # Temporary output for current configuration
         tmp_out.append(['Features: 16', '', '', '', '', '', '', '', ''])  # Formatting for CSV output
+
+        # Convert class labels into numeric values (e.g., categorical to integer)
+        df[class_column] = pd.factorize(df[class_column])[0]
+        label_indices = np.unique(df[class_column].to_numpy())  # Get unique numeric labels
 
         # Iterate through each class (target class)
         for index in label_indices:
@@ -83,15 +85,26 @@ for percentage in percentages:
                     
                     clf.fit(X_train_target)  # Train the model on the target class
 
-                    # Predict on test data from the same class (expected to be positive)
+                    # # Predict on test data from the same class (expected to be positive)
+                    # y_pred_train = clf.predict(X_test_target)
+                    # FP = y_pred_train[y_pred_train == -1].size  # False positives (misclassified as anomalies)
+                    # TN = y_pred_train[y_pred_train == 1].size  # True negatives (correctly classified as non-anomalous)
+
+                    # # Predict on data from other classes (expected to be anomalies)
+                    # y_pred_test = clf.predict(X_test_others)
+                    # TP = y_pred_test[y_pred_test == -1].size  # True positives (correctly classified as anomalies)
+                    # FN = y_pred_test[y_pred_test == 1].size  # False negatives (misclassified as benign)
+
+                    # Predict on test data from the same class (expected to be benign)
                     y_pred_train = clf.predict(X_test_target)
                     FP = y_pred_train[y_pred_train == -1].size  # False positives (misclassified as anomalies)
-                    TN = y_pred_train[y_pred_train == 1].size  # True negatives (correctly classified as non-anomalous)
+                    TP = y_pred_train[y_pred_train == 1].size  # True positives (correctly classified as benign)
 
                     # Predict on data from other classes (expected to be anomalies)
                     y_pred_test = clf.predict(X_test_others)
-                    TP = y_pred_test[y_pred_test == -1].size  # True positives (correctly classified as anomalies)
+                    TN = y_pred_test[y_pred_test == -1].size  # True negatives (correctly classified as anomalies)
                     FN = y_pred_test[y_pred_test == 1].size  # False negatives (misclassified as benign)
+
 
                     # Calculate accuracy and store results in the temporary output
                     accuracy = (TP + TN) / (TP + FP + FN + TN) * 100
@@ -104,4 +117,4 @@ for percentage in percentages:
         # Combine all output rows for this configuration and save to CSV
         output = np.concatenate(output, axis=1)  # Merge results for different features
         out = pd.DataFrame(output)  # Convert to DataFrame for easier CSV export
-        out.to_csv("HalfCache/stats_x264_cachehalf_16/Data-traffic-distribution-Results.csv", header=False, index=False, mode='a')  # Save the result
+        out.to_csv("MRUCache/stats_facesim_MRURP_16/Data-traffic-distribution-Results.csv", header=False, index=False, mode='a')  # Save the result
