@@ -15,9 +15,15 @@ percentages = [0, 10, 20, 30, 40, 50]  # Different percentages of Gaussian noise
 ratios = [0.9] # ratios = [0.8, 0.9]  # Data split ratios for train/test (80-20% or 90-10%)
 ratios_text = ['9-1']# ratios_text = ['8-2', '9-1']  # Text labels for the split ratios
 # List of different `nu` (a hyperparameter of OneClassSVM, controlling support vectors)
-NUs = [0.00005, 0.00006, 0.00007, 0.00008, 0.00009, 0.0001, 0.0002, 0.0003, 0.0004, 0.005, 0.05, 1./16., 0.1, 0.2, 0.5, 0.7, 0.9, 0.99]
+
+
+# NUs = [0.00005, 0.00006, 0.00007, 0.00008, 0.00009, 0.0001, 0.0002, 0.0003, 0.0004, 0.005, 0.05, 1./16., 0.1, 0.2, 0.5, 0.7, 0.9, 0.99]
+# # List of different `gamma` values (another hyperparameter controlling kernel width in SVM)
+# GAMMAs = [0.00001, 0.00002, 0.00003, 0.00004, 0.00005, 0.00006, 0.00007, 0.00008, 0.00009, 0.0001, 0.0002, 0.0003, 0.0004, 0.005, 0.05, 1./16., 0.1, 0.2, 0.5, 0.7, 0.9, 0.99]
+
+NUs = [0.0001, 0.0002, 0.0003, 0.0004, 0.005, 0.05, 1./16., 0.1, 0.2, 0.5, 0.7, 0.9, 0.99]
 # List of different `gamma` values (another hyperparameter controlling kernel width in SVM)
-GAMMAs = [0.00001, 0.00002, 0.00003, 0.00004, 0.00005, 0.00006, 0.00007, 0.00008, 0.00009, 0.0001, 0.0002, 0.0003, 0.0004, 0.005, 0.05, 1./16., 0.1, 0.2, 0.5, 0.7, 0.9, 0.99]
+GAMMAs = [ 0.0001, 0.0002, 0.0003, 0.0004, 0.005, 0.05, 1./16., 0.1, 0.2, 0.5, 0.7, 0.9, 0.99]
 
 # Iterate through different configurations
 for percentage in percentages:
@@ -39,23 +45,52 @@ for percentage in percentages:
         tmp_out = []  # Temporary output for current configuration
         tmp_out.append(['Features: 16', '', '', '', '', '', '', '', ''])  # Formatting for CSV output
 
-        # Convert class labels into numeric values (e.g., categorical to integer)
-        df[class_column] = pd.factorize(df[class_column])[0]
-        label_indices = np.unique(df[class_column].to_numpy())  # Get unique numeric labels
+        # # Convert class labels into numeric values (e.g., categorical to integer)
+        # df[class_column] = pd.factorize(df[class_column])[0]
+        # label_indices = np.unique(df[class_column].to_numpy())  # Get unique numeric labels
+
+        # # Iterate through each class (target class)
+        # for index in label_indices:
+        #     print('Target class:', labels[index])
+            
+        #     # Select data points for the current class (target class) excluding the class label column
+        #     X_train = df[df[class_column] == index].to_numpy()[:, :16]
+        #     np.random.shuffle(X_train)  # Shuffle the rows to randomize
+
+        #     # Split the data into training and testing based on the given ratio (80-20% or 90-10%)
+        #     split_index = int(X_train.shape[0] * ratio)
+            
+        #     # Training data (target class)
+        #     X_train_target = X_train[:split_index, :]
+
+        #     # Test data from the target class (benign cases)
+        #     X_test_target = X_train[split_index:, :]
+            
+        #     # Test data from other classes (anomalous cases)
+        #     X_test_others = df[df[class_column] != index].to_numpy()[:, :16]
+
+        # Ensure class labels remain consistent
+        df[class_column], label_mapping = pd.factorize(df[class_column], sort=True)  # Sort=True ensures consistency
+        labels = label_mapping  # Store original class names
 
         # Iterate through each class (target class)
-        for index in label_indices:
-            print('Target class:', labels[index])
-            
-            # Select data points for the current class (target class) excluding the class label column
-            X_train = df[df[class_column] == index].to_numpy()[:, :16]
-            np.random.shuffle(X_train)  # Shuffle the rows to randomize
+        for index in np.unique(df[class_column]):
+            target_class_name = labels[index]  # Get actual class name
+            print(f"Processing Target Class: {target_class_name}")
 
-            # Split the data into training and testing based on the given ratio (80-20% or 90-10%)
+            # Select data points for the current class (target class)
+            X_train = df[df[class_column] == index].to_numpy()[:, :16]
+
+            # **SHUFFLE THE DATA TO ENSURE RANDOMIZATION**
+            np.random.shuffle(X_train)  
+
+            # Split into training and testing
             split_index = int(X_train.shape[0] * ratio)
-            
-            # Training data (target class)
-            X_train_target = X_train[:split_index, :]
+            X_train_target = X_train[:split_index, :]  # Training data
+            X_test_target = X_train[split_index:, :]  # Testing data from the same class
+
+            # Ensure test "other" data is truly from other classes
+            X_test_others = df[df[class_column] != index].to_numpy()[:, :16]
 
             # **Augment Training Data with Noise**
             if(percentage != 0):
@@ -67,12 +102,8 @@ for percentage in percentages:
                 
                 # Convert augmented data to NumPy array and append to the original training data
                 X_train_target_augmented = np.vstack((X_train_target, np.array(augmented_data)))
+                X_train_target = X_train_target_augmented
                     
-            # Test data from the target class (benign cases)
-            X_test_target = X_train[split_index:, :]
-            
-            # Test data from other classes (anomalous cases)
-            X_test_others = df[df[class_column] != index].to_numpy()[:, :16]
 
             # Add target class header to the temporary output
             tmp_out.append([f'Target Class: {labels[index]}', 'TP', 'FP', 'FN', 'TN', 'ACC (%)', 'Noise Percantages', 'Upsampling', ''])  # TP, FP, etc. are placeholders for output
