@@ -1,0 +1,1 @@
+cd /home/gem5/parsec-benchmark;source env.sh;benchName=("facesim");numThreads=("16");idCores=("0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15");seqVal=$(seq 0 1 $(( ${#benchName[@]} -1 )));for i in $seqVal; do    taskset -c ${idCores[i]}      parsecmgmt -a run -p ${benchName[i]} -c gcc-hooks      -i simsmall      -n ${numThreads[i]} &done;wait;sleep 5;m5 exit;
