@@ -164,3 +164,5 @@ opt pathway - gem5.opt
 
 Simulate more multiple cases (MAKE SURE TO CORRECT BP BEFORE DOING SO)
 simulate more pairs with even distro, simulate case where 1 thread per program on core 0 and 15 (as distributed as possible)
+
+pOSSIBLE TO CHANGE THE CLOCK BETWEEN CORE AND CACHE? ALTER OVERALL CLOCK? REMOVE A SINGLE MORE CENTRAL CORE?
