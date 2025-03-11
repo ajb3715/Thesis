@@ -35,8 +35,8 @@ for percentage in percentages:
         # print(f'No. of features: {n_features}, No. of generated samples: {n_samples}, Split ratio: {ratio_text}, Gaussian percentage: {percentage}')
         
         # Read data from CSV based on current configuration (generated beforehand)
-        df = pd.read_csv("Pipeline/stats_dedup_Pipeline_16/Data-traffic-distribution-Comparison.csv")
-        
+        df = pd.read_csv("Pipeline/stats_x264_Pipeline_16/Data-traffic-distribution-Comparison.csv")
+
         # Column indicating the class labels
         class_column = 'Applications (Label Classes)'
         
@@ -110,7 +110,6 @@ for percentage in percentages:
                     for _ in range(nums_samples):  # Generate `nums_samples` additional data points
                         noise = np.random.normal(0, (percentage / 100) * np.abs(sample), size=sample.shape)
                         augmented_data.append(sample + noise)
-                
                 # Convert augmented data to NumPy array and append to the original training data
                 X_train_target_augmented = np.vstack((X_train_target, np.array(augmented_data)))
                 X_train_target = X_train_target_augmented
@@ -139,18 +138,18 @@ for percentage in percentages:
 
                     # Predict on test data from the same class (expected to be benign)
                     y_pred_train = clf.predict(X_test_target)
-                    FP = y_pred_train[y_pred_train == -1].size  # False positives (misclassified as anomalies)
+                    FN = y_pred_train[y_pred_train == -1].size  # False positives (misclassified as anomalies)
                     TP = y_pred_train[y_pred_train == 1].size  # True positives (correctly classified as benign)
 
                     # Predict on data from other classes (expected to be anomalies)
                     y_pred_test = clf.predict(X_test_others)
                     TN = y_pred_test[y_pred_test == -1].size  # True negatives (correctly classified as anomalies)
-                    FN = y_pred_test[y_pred_test == 1].size  # False negatives (misclassified as benign)
+                    FP = y_pred_test[y_pred_test == 1].size  # False negatives (misclassified as benign)
 
 
                     # Calculate accuracy and store results in the temporary output
                     accuracy = (TP + TN) / (TP + FP + FN + TN) * 100
-                    tmp_out.append([f'Nu: {nu}, Gamma: {gamma}', TP, FP, FN, TN, accuracy, int(percentage), nums_samples, ''])  # Append to CSV output
+                    tmp_out.append([f'Nu: {nu}, Gamma: {gamma}', TP, FN, FP, TN, accuracy, int(percentage), nums_samples, ''])  # Append to CSV output
 
             tmp_out.append(['', '', '', '', '', '', '', '', ''])  # Add spacing in output between target classes
 
@@ -159,4 +158,4 @@ for percentage in percentages:
         # Combine all output rows for this configuration and save to CSV
         output = np.concatenate(output, axis=1)  # Merge results for different featuress
         out = pd.DataFrame(output)  # Convert to DataFrame for easier CSV export
-        out.to_csv("Pipeline/stats_dedup_Pipeline_16/Data-traffic-distribution-Results.csv", header=False, index=False, mode='a')  # Save the result
+        out.to_csv("Pipeline/stats_x264_Pipeline_16/Data-traffic-distribution-Results.csv", header=False, index=False, mode='a')  # Save the result
