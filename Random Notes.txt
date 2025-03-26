@@ -18,6 +18,13 @@ set of parameters that configure the core in gem5, may be able to alter cache/sl
 ssh gem5vm@gem5-vm.rc.rit.edu -C
 ssh ajb3715@sporcsubmit.rc.rit.edu
 
+ -d stats_blackscholes-bodytrack_splitprogram_0-15 \
+        ./PoliMi_RIT/run_simulation_v4_cluster.py \
+        --benchmark blackscholes-bodytrack \
+        --thread 1 \
+        --core 0-15 \
+        --size simsmall \
+
  "blackscholes",
     "bodytrack",
     "canneal",
