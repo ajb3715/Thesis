@@ -9,13 +9,19 @@ from tqdm.auto import tqdm
 import glob
 import os
 
+import re
+
+def numeric_sort_key(filename):
+    match = re.search(r'model(\d+)_', filename)
+    return int(match.group(1)) if match else float('inf')
+
 init_flag = 0
 
 # Parameters
 np.random.seed(0)
 
 # Load dataset
-df = pd.read_csv("DropCore/stats_streamcluster_drop10_16/Data-traffic-distribution.csv")
+df = pd.read_csv("IndirectBP/stats_vips_IndirectBP_16/Data-traffic-distribution.csv")
 class_column = 'Applications (Label Classes)'
 df[class_column], label_mapping = pd.factorize(df[class_column], sort=True)
 labels = label_mapping
@@ -24,14 +30,14 @@ output = []
 tmp_out = []
 tmp_out.append(['Features: 16', '', '', '', '', '', '', '', ''])
 
-model_files = [f for f in os.listdir("DropCore/stats_streamcluster_drop10_16/saved_models") if f.endswith('.joblib')]
+model_files = [f for f in sorted(os.listdir("Golden/stats_vips_16/saved_models"), key=numeric_sort_key) if f.endswith('.joblib')]
 
 for model_file in tqdm(model_files):
     print(f"Testing model: {model_file}")
 
     # Parse filename parts
     parts = model_file.split('_')
-    target_class_name = parts[3]
+    target_class_name = parts[2]
     
     # Parse nu, gamma, and noise percentage
     nu_part = model_file.split('_nu')[1]
@@ -56,7 +62,7 @@ for model_file in tqdm(model_files):
     scaler = MinMaxScaler()
     X_outlier = scaler.fit_transform(X_outlier)
 
-    model_path = os.path.join("DropCore/stats_streamcluster_drop10_16/saved_models", model_file)
+    model_path = os.path.join("Golden/stats_vips_16/saved_models", model_file)
     clf = load(model_path)
 
     # Only test on outliers
@@ -79,4 +85,4 @@ for model_file in tqdm(model_files):
 output.append(tmp_out)
 output = np.concatenate(output, axis=1)
 out = pd.DataFrame(output)
-out.to_csv("DropCore/stats_streamcluster_drop10_16/Testing-Results.csv", header=False, index=False, mode='a')
+out.to_csv("IndirectBP/stats_vips_IndirectBP_16/Testing-Results.csv", header=False, index=False, mode='a')

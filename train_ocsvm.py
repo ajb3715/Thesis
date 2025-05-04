@@ -18,14 +18,14 @@ NUs = [0.0001, 0.0002, 0.0003, 0.0004, 0.005, 0.05, 1./16., 0.1, 0.2, 0.5, 0.7, 
 GAMMAs = [0.0001, 0.0002, 0.0003, 0.0004, 0.005, 0.05, 1./16., 0.1, 0.2, 0.5, 0.7, 0.9, 0.99]
 
 # Load dataset
-df = pd.read_csv("DropCore/stats_streamcluster_drop10_16/Data-traffic-distribution-Comparison.csv")
+df = pd.read_csv("Golden/stats_vips_16/Data-traffic-distribution.csv")
 class_column = 'Applications (Label Classes)'
 df[class_column], label_mapping = pd.factorize(df[class_column], sort=True)
 labels = label_mapping
 
 # Make sure model save path exists
-os.makedirs("DropCore/stats_streamcluster_drop10_16/saved_models", exist_ok=True)
-
+os.makedirs("Golden/stats_vips_16/saved_models", exist_ok=True)
+i = 0
 for percentage in percentages:
     for ratio, ratio_text in zip(ratios, ratios_text):
         output = []
@@ -57,13 +57,15 @@ for percentage in percentages:
 
             tmp_out.append([f'Target Class: {target_class_name}', 'TP', 'FN', 'FP', 'TN', 'ACC (%)', 'Noise Percentage', 'Upsampling', ''])
 
+            
             for nu in tqdm(NUs):
                 for gamma in tqdm(GAMMAs):
                     clf = OneClassSVM(kernel='rbf', nu=nu, gamma=gamma)
                     clf.fit(X_train_target)
 
                     # Save model
-                    model_filename = f"DropCore/stats_streamcluster_drop10_16/saved_models/upsamlping_noise{percentage}_ocsvm_{target_class_name}_nu{nu}_gamma{gamma}_upsamlping_noise{percentage}.joblib"
+                    model_filename = f"Golden/stats_vips_16/saved_models/model{i}_ocsvm_{target_class_name}_nu{nu}_gamma{gamma}_upsampling_noise{percentage}.joblib"
+                    i = i+1
                     dump(clf, model_filename)
 
                     # Test on inliers only
@@ -83,4 +85,4 @@ for percentage in percentages:
 
         output = np.concatenate(output, axis=1)
         out = pd.DataFrame(output)
-        out.to_csv("DropCore/stats_streamcluster_drop10_16/Training-Results.csv", header=False, index=False, mode='a')
+        out.to_csv("Golden/stats_vips_16/Training-Results.csv", header=False, index=False, mode='a')
